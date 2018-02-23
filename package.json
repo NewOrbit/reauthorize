@@ -1,45 +1,45 @@
 {
-    "name": "@neworbit/redux-authorisation",
-    "version": "0.1.0",
-    "description": "Package containing helpers for authorisation in redux",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "files": [
-        "dist/"
-    ],
-    "scripts": {
-        "build": "tsc -p ./tsconfig.json --outDir dist",
-        "build:test": "tsc -p ./tsconfig.test.json",
-        "test:run": "alsatian \"./test/**/*.test.js\"",
-        "test": "npm run lint && npm run build:test && npm run test:run",
-        "lint": "tslint -c tslint.json \"./{src,test}/**/*.{ts,tsx}\""
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/NewOrbit/neworbit-redux-authorisation.git"
-    },
-    "keywords": [
-        "redux",
-        "react",
-        "authorisation"
-    ],
-    "author": "NewOrbit Ltd",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/NewOrbit/neworbit-redux-authorisation/issues"
-    },
-    "homepage": "https://github.com/NewOrbit/neworbit-redux-authorisation#readme",
-    "dependencies": {
-        "react": "^16.2.0",
-        "redux": "^3.7.2",
-        "react-redux": "^5.0.6"
-    },
-    "devDependencies": {
-        "@types/react": "16.0.35",
-        "@types/react-redux": "5.0.14",
-        "@neworbit/tslint-config": "^1.0.0",
-        "alsatian": "^2.0.0",
-        "tslint": "^5.0.0",
-        "typescript": "^2.2.2"
-    }
+  "name": "@neworbit/redux-authorisation",
+  "version": "0.2.0",
+  "description": "Package containing helpers for authorisation in redux",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json --outDir dist",
+    "build:test": "tsc -p ./tsconfig.test.json",
+    "test:run": "alsatian \"./test/**/*.test.js\"",
+    "test": "npm run lint && npm run build:test && npm run test:run",
+    "lint": "tslint -c tslint.json \"./{src,test}/**/*.{ts,tsx}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NewOrbit/neworbit-redux-authorisation.git"
+  },
+  "keywords": [
+    "redux",
+    "react",
+    "authorisation"
+  ],
+  "author": "NewOrbit Ltd",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NewOrbit/neworbit-redux-authorisation/issues"
+  },
+  "homepage": "https://github.com/NewOrbit/neworbit-redux-authorisation#readme",
+  "dependencies": {
+    "react": "^16.2.0",
+    "redux": "^3.7.2",
+    "react-redux": "^5.0.6"
+  },
+  "devDependencies": {
+    "@types/react": "16.0.35",
+    "@types/react-redux": "5.0.14",
+    "@neworbit/tslint-config": "^1.0.0",
+    "alsatian": "^2.0.0",
+    "tslint": "^5.0.0",
+    "typescript": "^2.2.2"
+  }
 }
