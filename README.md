@@ -14,7 +14,7 @@ interface User {
 
 You can extend this for your own user object.
 
-All of the below tools use an `AuthorisationSetting` type which is equivalent to: `bool | string | string[]`.  These have the following meanings:
+All of the below tools use an `AuthorisationSetting` type which is equivalent to: `bool | string | string[]`.  The possible values have the following meanings:
  - `true` - will return `Authorised` for any authenticated user
  - `false` - will return `Authorised` for any user
  - `string` - will return `Authorised` for any authenticated user with a role which matches this string
@@ -26,6 +26,21 @@ All of the below tools use an `AuthorisationSetting` type which is equivalent to
 ## `Authorise` component
 
 ## `authorise` higher order component
+
+This is a higher order component, connected to the redux store which allows you to show or hide an entire component based on an authorisation setting:
+
+```ts
+import * as React from "react";
+import { authorise } from "@neworbit/redux-authorisation";
+
+class MyComponent extends React.Component<{}> {
+  public render() {
+    return <div>Some sensitive information</div>;
+  }
+}
+
+export default authorise("ADMIN")(MyComponent);
+```
 
 ## `isAuthorised` function
 
