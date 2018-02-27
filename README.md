@@ -23,6 +23,45 @@ All of the below tools use an `AuthorisationSetting` type which is equivalent to
 
 ## `authMiddleware`
 
+This is a middleware that allows you to authorise based on redux actions.
+
+Its configured with the following options:
+
+```ts
+export interface AuthMiddlewareOptions<TState, TAction> {
+    actionType: string;                                      // name of action to monitor
+    getUser: (state: TState) => User;                        // method to get the current user from the state
+    getAuthPayload: (action: TAction) => AuthPayload;        // method to get the payload from the action
+    unauthorisedAction: any;                                 // action to dispatch if unauthorised
+    unauthenticatedAction?: any;                             // action to dispatch if unauthenticated (unauthorised will be used if not provided)
+    unauthorisedError?: string;                              // error message to throw when unauthorised
+    unauthenticatedError?: string;                           // error message to throw when authenticated
+}
+```
+
+The `AuthPayload` type is defined as:
+```ts
+export type AuthPayload = {
+    authorise: AuthorisationSetting,
+    parent?: AuthPayload
+};
+```
+
+So if parent is defined it will recurse and inherit authorisation settings if not defined at the current level.
+
+For example to use with redux-little-router to authorise your location changes:
+```ts
+import { LOCATION_CHANGED, replace, Location } from "redux-little-router";
+import { configureAuthMiddleware, AuthState, AuthPayload } from "@neworbit/redux-authorisation";
+
+const authMiddleware = configureAuthMiddleware<AuthState, { payload: Location }>({
+    actionType: LOCATION_CHANGED,
+    getAuthPayload: action => (action.payload || {}).result as AuthPayload,
+    getUser: state => state.currentUser,
+    unauthorisedAction: replace("/forbidden")
+});
+```
+
 ## `Authorise` component
 
 This is a component you can use to hide parts of a component based on authorisation.
