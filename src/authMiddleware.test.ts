@@ -1,5 +1,5 @@
 import { AsyncTest, Expect, Test, TestCase, TestFixture, SpyOn, Setup, createFunctionSpy, Any } from "alsatian";
-import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORISED_ERROR, RouteResult } from "./authMiddleware";
+import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORISED_ERROR, AuthPayload } from "./authMiddleware";
 import { AuthState } from "./model";
 
 @TestFixture("authMiddleware")
@@ -26,9 +26,9 @@ export class AuthMiddlewareTests {
 
         SpyOn(this.store, "dispatch");
 
-        const authMiddleware = configureAuthMiddleware<AuthState, { payload: { result: RouteResult } }>({
-            locationChangeActionType: "LOCATION_CHANGED",
-            getRouteResult: action => action.payload.result,
+        const authMiddleware = configureAuthMiddleware<AuthState, { payload: { result: AuthPayload } }>({
+            actionType: "LOCATION_CHANGED",
+            getAuthPayload: action => action.payload.result,
             getUser: state => state.currentUser,
             unauthorisedAction: this.unauthorisedAction,
             unauthenticatedAction: this.unauthenticatedAction

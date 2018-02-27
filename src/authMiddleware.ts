@@ -5,15 +5,15 @@ import { isAuthorised } from "./isAuthorised";
 export const UNAUTHORISED_ERROR = "Not authorised to view this route";
 export const UNAUTHENTICATED_ERROR = "Not authenticated";
 
-export type RouteResult = {
+export type AuthPayload = {
     authorise: AuthorisationSetting,
-    parent?: RouteResult
+    parent?: AuthPayload
 };
 
 export interface AuthMiddlewareOptions<TState, TAction> {
-    locationChangeActionType: string;
+    actionType: string;
     getUser: (state: TState) => User;
-    getRouteResult: (action: TAction) => RouteResult;
+    getAuthPayload: (action: TAction) => AuthPayload;
     unauthorisedAction: any;
     unauthenticatedAction?: any;
     unauthorisedError?: string;
@@ -23,8 +23,8 @@ export interface AuthMiddlewareOptions<TState, TAction> {
 export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddlewareOptions<TState, TAction>): Middleware => {
 
     const {
-        locationChangeActionType,
-        getRouteResult,
+        actionType,
+        getAuthPayload,
         getUser,
         unauthenticatedAction,
         unauthorisedAction,
@@ -35,10 +35,10 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
 
     return (api: MiddlewareAPI<any>) => (next: Dispatch<TState>) => (action: any) => {
 
-        if (action.type === locationChangeActionType) {
+        if (action.type === actionType) {
 
             const user = getUser(api.getState());
-            const result = getRouteResult(action);
+            const result = getAuthPayload(action);
 
             let authorise = result.authorise;
             let parent = result.parent;
