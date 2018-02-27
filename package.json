@@ -1,6 +1,6 @@
 {
   "name": "@neworbit/redux-authorisation",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Package containing helpers for authorisation in redux",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
