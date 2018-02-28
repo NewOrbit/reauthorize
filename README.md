@@ -2,6 +2,10 @@
 
 This package provides a number of tools to help you implement authorisation in your front end application.
 
+## Installation
+
+`npm install @neworbit/redux-authorisation`
+
 ## Key principals
 
 This package defines an interface `User` which all of the authorisation tools expect.
