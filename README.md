@@ -64,6 +64,16 @@ const authMiddleware = configureAuthMiddleware<AuthState, { payload: Location }>
     getUser: state => state.currentUser,
     unauthorisedAction: replace("/forbidden")
 });
+
+// add authorise to your routes:
+const routes = {
+  "/home": {
+    authorise: false
+  },
+  "/admin": {
+    authorise: "ADMIN"
+  }
+};
 ```
 
 ## `Authorise` component
