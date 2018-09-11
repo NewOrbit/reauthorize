@@ -1,4 +1,4 @@
-import { AsyncTest, Expect, Test, TestCase, TestFixture, SpyOn, Setup, createFunctionSpy, Any } from "alsatian";
+import { Expect, Test, TestCase, TestFixture, SpyOn, Setup, createFunctionSpy } from "alsatian";
 import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORISED_ERROR, AuthPayload } from "./authMiddleware";
 import { AuthState } from "./model";
 
