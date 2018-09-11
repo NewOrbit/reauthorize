@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { AuthState, User, AuthorisationSetting, AuthorisationCondition } from "./model";
+import { AuthState, User, AuthorisationSetting, UserAuthorisationCondition } from "./model";
 import { isAuthorised } from "./isAuthorised";
 
 export interface AuthoriseStateProps {
@@ -9,7 +9,7 @@ export interface AuthoriseStateProps {
 
 export interface AuthoriseProps {
     authorise: AuthorisationSetting;
-    condition?: AuthorisationCondition;
+    condition?: UserAuthorisationCondition;
 }
 
 export const AuthoriseUnconnected: React.SFC<AuthoriseStateProps & AuthoriseProps> = ({ authorise, currentUser, condition, children }) =>
