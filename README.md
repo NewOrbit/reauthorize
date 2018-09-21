@@ -124,3 +124,7 @@ This is the backbone to all of the above tools.  It takes in a `User` and  an `A
  - `"Authorised"` - the user is authorised
  - `"Unauthorised"` - the user is not authorised
  - `"Unauthenticated"` - the user is not authenticated
+
+## License
+
+Made with :sparkling_heart: by [NewOrbit](https://www.neworbit.co.uk/) in Oxfordshire, and licensed under the [MIT Licence](LICENSE)
