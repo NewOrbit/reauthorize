@@ -24,7 +24,7 @@
     "authorisation"
   ],
   "author": "NewOrbit Ltd",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/NewOrbit/neworbit-redux-authorisation/issues"
   },
