@@ -1,6 +1,6 @@
 # reauthorize
 
-This package provides a number of tools to help you implement authorization in your front end application.
+This package provides a number of tools to help you implement authorization in your react and redux application.
 
 ## Installation
 
