@@ -23,7 +23,7 @@ All of the below tools use an `AuthorizationSetting` type which is equivalent to
  - `false` - will return `Authorized` for any user
  - `string` - will return `Authorized` for any authenticated user with a role which matches this string
  - `string[]` - will return `Authorized` for any authenticated user with a role which matches one of the roles in this array
- - `undefined` - will return `Unauthorized` for any user
+ - `undefined` - will return `Unauthorized` for any user (in case you do not provide a setting)
 
 ## `authMiddleware`
 
