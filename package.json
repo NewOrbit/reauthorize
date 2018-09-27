@@ -14,7 +14,7 @@
     "test:runci": "alsatian \"./test/**/*.test.js\" --tap | tap-xunit > ./test-results.xml",
     "test": "npm run lint && npm run build:test && npm run test:run",
     "test:ci": "npm run build:test && npm run test:runci",
-    "lint": "tslint -c tslint.json \"./{src,test}/**/*.{ts,tsx}\""
+    "lint": "tslint -c tslint.json \"./src/**/*.{ts,tsx}\""
   },
   "repository": {
     "type": "git",
