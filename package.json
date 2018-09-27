@@ -11,7 +11,9 @@
     "build": "tsc -p ./tsconfig.json --outDir dist",
     "build:test": "tsc -p ./tsconfig.test.json",
     "test:run": "alsatian \"./test/**/*.test.js\"",
+    "test:runci": "alsatian \"./test/**/*.test.js\" --tap | tap-xunit > ./test-results.xml",
     "test": "npm run lint && npm run build:test && npm run test:run",
+    "test:ci": "npm run build:test && npm run test:runci",
     "lint": "tslint -c tslint.json \"./{src,test}/**/*.{ts,tsx}\""
   },
   "repository": {
@@ -45,6 +47,7 @@
     "enzyme-adapter-react-16": "^1.5.0",
     "react-dom": "^16.5.0",
     "tslint": "^5.0.0",
+    "tap-xunit": "^2.2.0",
     "typescript": "^2.2.2",
     "react": "^16.2.0",
     "redux": "^3.7.2",
