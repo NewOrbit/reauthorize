@@ -29,7 +29,7 @@
     "url": "https://github.com/NewOrbit/neworbit-redux-authorisation/issues"
   },
   "homepage": "https://github.com/NewOrbit/neworbit-redux-authorisation#readme",
-  "dependencies": {
+  "peerDependencies": {
     "react": "^16.2.0",
     "redux": "^3.7.2",
     "react-redux": "^5.0.6"
