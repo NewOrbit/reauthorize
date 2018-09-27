@@ -1,5 +1,5 @@
 {
-  "name": "@neworbit/redux-authorisation",
+  "name": "reauthorize",
   "version": "1.1.0",
   "description": "Package containing helpers for authorisation in redux",
   "main": "dist/index.js",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NewOrbit/neworbit-redux-authorisation.git"
+    "url": "git+https://github.com/NewOrbit/reauthorize.git"
   },
   "keywords": [
     "redux",
@@ -26,9 +26,9 @@
   "author": "NewOrbit Ltd",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NewOrbit/neworbit-redux-authorisation/issues"
+    "url": "https://github.com/NewOrbit/reauthorize/issues"
   },
-  "homepage": "https://github.com/NewOrbit/neworbit-redux-authorisation#readme",
+  "homepage": "https://github.com/NewOrbit/reauthorize#readme",
   "peerDependencies": {
     "react": "^16.2.0",
     "redux": "^3.7.2",
