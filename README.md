@@ -1,6 +1,6 @@
 # reauthorize
 
-This package provides a number of tools to help you implement authorisation in your front end application.
+This package provides a number of tools to help you implement authorization in your front end application.
 
 ## Installation
 
@@ -8,7 +8,7 @@ This package provides a number of tools to help you implement authorisation in y
 
 ## Key principals
 
-This package defines an interface `User` which all of the authorisation tools expect.
+This package defines an interface `User` which all of the authorization tools expect.
 ```ts
 interface User {
   authenticated: boolean;
@@ -18,16 +18,16 @@ interface User {
 
 You can extend this for your own user object.
 
-All of the below tools use an `AuthorisationSetting` type which is equivalent to: `bool | string | string[]`.  The possible values have the following meanings:
- - `true` - will return `Authorised` for any authenticated user
- - `false` - will return `Authorised` for any user
- - `string` - will return `Authorised` for any authenticated user with a role which matches this string
- - `string[]` - will return `Authorised` for any authenticated user with a role which matches one of the roles in this array
- - `undefined` - will return `Unauthorised` for any user
+All of the below tools use an `AuthorizationSetting` type which is equivalent to: `bool | string | string[]`.  The possible values have the following meanings:
+ - `true` - will return `Authorized` for any authenticated user
+ - `false` - will return `Authorized` for any user
+ - `string` - will return `Authorized` for any authenticated user with a role which matches this string
+ - `string[]` - will return `Authorized` for any authenticated user with a role which matches one of the roles in this array
+ - `undefined` - will return `Unauthorized` for any user
 
 ## `authMiddleware`
 
-This is a middleware that allows you to authorise based on redux actions.
+This is a middleware that allows you to authorize based on redux actions.
 
 Its configured with the following options:
 
@@ -36,9 +36,9 @@ export interface AuthMiddlewareOptions<TState, TAction> {
     actionType: string;                                      // name of action to monitor
     getUser: (state: TState) => User;                        // method to get the current user from the state
     getAuthPayload: (action: TAction) => AuthPayload;        // method to get the payload from the action
-    unauthorisedAction: any;                                 // action to dispatch if unauthorised
-    unauthenticatedAction?: any;                             // action to dispatch if unauthenticated (unauthorised will be used if not provided)
-    unauthorisedError?: string;                              // error message to throw when unauthorised
+    unauthorizedAction: any;                                 // action to dispatch if unauthorized
+    unauthenticatedAction?: any;                             // action to dispatch if unauthenticated (unauthorized will be used if not provided)
+    unauthorizedError?: string;                              // error message to throw when unauthorized
     unauthenticatedError?: string;                           // error message to throw when authenticated
 }
 ```
@@ -46,14 +46,14 @@ export interface AuthMiddlewareOptions<TState, TAction> {
 The `AuthPayload` type is defined as:
 ```ts
 export type AuthPayload = {
-    authorise: AuthorisationSetting,
+    authorize: AuthorizationSetting,
     parent?: AuthPayload
 };
 ```
 
-So if parent is defined it will recurse and inherit authorisation settings if not defined at the current level.
+So if parent is defined it will recurse and inherit authorization settings if not defined at the current level.
 
-For example to use with redux-little-router to authorise your location changes:
+For example to use with redux-little-router to authorize your location changes:
 ```ts
 import { LOCATION_CHANGED, replace, Location } from "redux-little-router";
 import { configureAuthMiddleware, AuthState, AuthPayload } from "reauthorize";
@@ -62,29 +62,29 @@ const authMiddleware = configureAuthMiddleware<AuthState, { payload: Location }>
     actionType: LOCATION_CHANGED,
     getAuthPayload: action => (action.payload || {}).result as AuthPayload,
     getUser: state => state.currentUser,
-    unauthorisedAction: replace("/forbidden")
+    unauthorizedAction: replace("/forbidden")
 });
 
-// add authorise to your routes:
+// add authorize to your routes:
 const routes = {
   "/home": {
-    authorise: false
+    authorize: false
   },
   "/admin": {
-    authorise: "ADMIN"
+    authorize: "ADMIN"
   }
 };
 ```
 
-## `Authorise` component
+## `Authorize` component
 
-This is a component you can use to hide parts of a component based on authorisation.
+This is a component you can use to hide parts of a component based on authorization.
 
 > Note: if you need to hide an entire component a better solution is to use the higher order component described below
 
 ```ts
 import * as React from "react";
-import { Authorise } from "reauthorize";
+import { Authorize } from "reauthorize";
 
 class MyComponent extends React.Component<{}> {
   public render() {
@@ -92,22 +92,22 @@ class MyComponent extends React.Component<{}> {
       <div>
         <h1>My component</h1>
         <p>Some non sensitive information</p>
-        <Authorise authorise="ADMIN">
+        <Authorize authorize="ADMIN">
           <p>Some sensitive information</p>
-        </Authorise>
+        </Authorize>
       </div>
     );
   }
 }
 ```
 
-## `authorise` higher order component
+## `authorize` higher order component
 
-This is a higher order component, connected to the redux store which allows you to show or hide an entire component based on an authorisation setting:
+This is a higher order component, connected to the redux store which allows you to show or hide an entire component based on an authorization setting:
 
 ```ts
 import * as React from "react";
-import { authorise } from "reauthorize";
+import { authorize } from "reauthorize";
 
 class MyComponent extends React.Component<{}> {
   public render() {
@@ -115,14 +115,14 @@ class MyComponent extends React.Component<{}> {
   }
 }
 
-export default authorise("ADMIN")(MyComponent);
+export default authorize("ADMIN")(MyComponent);
 ```
 
-## `isAuthorised` function
+## `isAuthorized` function
 
-This is the backbone to all of the above tools.  It takes in a `User` and  an `AuthorisationSetting` and will return one of the following results:
- - `"Authorised"` - the user is authorised
- - `"Unauthorised"` - the user is not authorised
+This is the backbone to all of the above tools.  It takes in a `User` and  an `AuthorizationSetting` and will return one of the following results:
+ - `"Authorized"` - the user is authorized
+ - `"Unauthorized"` - the user is not authorized
  - `"Unauthenticated"` - the user is not authenticated
 
 ## License

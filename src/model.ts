@@ -1,6 +1,6 @@
-export type AuthorisationSetting = boolean | string | string[];
-export type AuthorisationResult = "Authorised" | "Unauthorised" | "Unauthenticated";
-export type UserAuthorisationCondition = (currentUser: User) => boolean;
+export type AuthorizationSetting = boolean | string | string[];
+export type AuthorizationResult = "Authorized" | "Unauthorized" | "Unauthenticated";
+export type UserAuthorizationCondition = (currentUser: User) => boolean;
 
 export interface User {
     authenticated: boolean;
