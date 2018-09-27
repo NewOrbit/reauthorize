@@ -1,10 +1,10 @@
-# neworbit-redux-authorisation
+# reauthorize
 
 This package provides a number of tools to help you implement authorization in your front end application.
 
 ## Installation
 
-`npm install @neworbit/redux-authorisation`
+`npm install reauthorize`
 
 ## Key principals
 
@@ -56,7 +56,7 @@ So if parent is defined it will recurse and inherit authorization settings if no
 For example to use with redux-little-router to authorize your location changes:
 ```ts
 import { LOCATION_CHANGED, replace, Location } from "redux-little-router";
-import { configureAuthMiddleware, AuthState, AuthPayload } from "@neworbit/redux-authorisation";
+import { configureAuthMiddleware, AuthState, AuthPayload } from "reauthorize";
 
 const authMiddleware = configureAuthMiddleware<AuthState, { payload: Location }>({
     actionType: LOCATION_CHANGED,
@@ -84,7 +84,7 @@ This is a component you can use to hide parts of a component based on authorizat
 
 ```ts
 import * as React from "react";
-import { Authorize } from "@neworbit/redux-authorisation";
+import { Authorize } from "reauthorize";
 
 class MyComponent extends React.Component<{}> {
   public render() {
@@ -107,7 +107,7 @@ This is a higher order component, connected to the redux store which allows you 
 
 ```ts
 import * as React from "react";
-import { authorize } from "@neworbit/redux-authorisation";
+import { authorize } from "reauthorize";
 
 class MyComponent extends React.Component<{}> {
   public render() {
