@@ -1,12 +1,12 @@
 import { Middleware, MiddlewareAPI, Dispatch } from "redux";
-import { AuthorisationSetting, User } from "./model";
-import { isAuthorised } from "./isAuthorised";
+import { AuthorizationSetting, User } from "./model";
+import { isAuthorized } from "./isAuthorized";
 
-export const UNAUTHORISED_ERROR = "Not authorised to view this route";
+export const UNAUTHORIZED_ERROR = "Not authorized to view this route";
 export const UNAUTHENTICATED_ERROR = "Not authenticated";
 
 export type AuthPayload = {
-    authorise: AuthorisationSetting,
+    authorize: AuthorizationSetting,
     parent?: AuthPayload
 };
 
@@ -14,9 +14,9 @@ export interface AuthMiddlewareOptions<TState, TAction> {
     actionType: string;
     getUser: (state: TState) => User;
     getAuthPayload: (action: TAction) => AuthPayload;
-    unauthorisedAction: any;
+    unauthorizedAction: any;
     unauthenticatedAction?: any;
-    unauthorisedError?: string;
+    unauthorizedError?: string;
     unauthenticatedError?: string;
 }
 
@@ -27,10 +27,10 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
         getAuthPayload,
         getUser,
         unauthenticatedAction,
-        unauthorisedAction,
+        unauthorizedAction,
     } = options;
 
-    const unauthorisedError = options.unauthorisedError || UNAUTHORISED_ERROR;
+    const unauthorizedError = options.unauthorizedError || UNAUTHORIZED_ERROR;
     const unauthenticatedError = options.unauthenticatedError || UNAUTHENTICATED_ERROR;
 
     return (api: MiddlewareAPI<any>) => (next: Dispatch<TState>) => (action: any) => {
@@ -40,24 +40,24 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
             const user = getUser(api.getState());
             const result = getAuthPayload(action);
 
-            let authorise = result.authorise;
+            let authorize = result.authorize;
             let parent = result.parent;
 
-            while (authorise === undefined && parent !== undefined) {
-                authorise = parent.authorise;
+            while (authorize === undefined && parent !== undefined) {
+                authorize = parent.authorize;
                 parent = parent.parent;
             }
 
-            const authResult = isAuthorised(user, authorise);
+            const authResult = isAuthorized(user, authorize);
 
             if (authResult === "Unauthenticated") {
-                api.dispatch(unauthenticatedAction || unauthorisedAction);
+                api.dispatch(unauthenticatedAction || unauthorizedAction);
                 throw new Error(unauthenticatedError);
             }
 
-            if (authResult === "Unauthorised") {
-                api.dispatch(unauthorisedAction);
-                throw new Error(unauthorisedError);
+            if (authResult === "Unauthorized") {
+                api.dispatch(unauthorizedAction);
+                throw new Error(unauthorizedError);
             }
         }
 

@@ -4,11 +4,16 @@
     "jsx": "react",
     "experimentalDecorators": true,
     "outDir": "./test",
-    "lib": ["es2015", "dom"],
-    "target": "es5"
+    "lib": ["es2015"],
+    "target": "es5",
+    "keyofStringsOnly": true
   },
   "include": [
     "./src/**/*.test.ts",
     "./src/**/*.test.tsx"
+  ],
+  "exclude": [
+    "./node_modules/",
+    "./dist/"
   ]
 }

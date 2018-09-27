@@ -1,5 +1,5 @@
 import { Expect, Test, TestCase, TestFixture, SpyOn, Setup, createFunctionSpy } from "alsatian";
-import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORISED_ERROR, AuthPayload } from "./authMiddleware";
+import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORIZED_ERROR, AuthPayload } from "./authMiddleware";
 import { AuthState } from "./model";
 
 @TestFixture("authMiddleware")
@@ -14,7 +14,7 @@ export class AuthMiddlewareTests {
     private invoke: (action: any) => any;
     private error: Error;
 
-    private unauthorisedAction = { type: "LOCATION_CHANGED", path: "/forbidden" };
+    private unauthorizedAction = { type: "LOCATION_CHANGED", path: "/forbidden" };
     private unauthenticatedAction = { type: "LOCATION_CHANGED", path: "/login" };
 
     @Setup
@@ -30,7 +30,7 @@ export class AuthMiddlewareTests {
             actionType: "LOCATION_CHANGED",
             getAuthPayload: action => action.payload.result,
             getUser: state => state.currentUser,
-            unauthorisedAction: this.unauthorisedAction,
+            unauthorizedAction: this.unauthorizedAction,
             unauthenticatedAction: this.unauthenticatedAction
         });
 
@@ -54,7 +54,7 @@ export class AuthMiddlewareTests {
         Expect(this.next).toHaveBeenCalledWith(action);
     }
 
-    @Test("should allow authorised route")
+    @Test("should allow authorized route")
     public shouldAllowAuthorisedRoute() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
@@ -62,7 +62,7 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: ["ADMIN"]
+                    authorize: ["ADMIN"]
                 }
             }
         };
@@ -73,7 +73,7 @@ export class AuthMiddlewareTests {
         Expect(this.error).toBeNull();
     }
 
-    @Test("should allow authorised route for string")
+    @Test("should allow authorized route for string")
     public shouldAllowAuthorisedRouteForString() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
@@ -81,7 +81,7 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: "ADMIN"
+                    authorize: "ADMIN"
                 }
             }
         };
@@ -92,26 +92,26 @@ export class AuthMiddlewareTests {
         Expect(this.error).toBeNull();
     }
 
-    @Test("should not allow unauthorised route")
-    public shouldNotAllowUnauthorisedRoute() {
+    @Test("should not allow unauthorized route")
+    public shouldNotAllowUnauthorizedRoute() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: ["SUPER_ADMIN"]
+                    authorize: ["SUPER_ADMIN"]
                 }
             }
         };
 
         this.invoke(action);
-        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorisedAction);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorizedAction);
         Expect(this.next).not.toHaveBeenCalled();
-        Expect(this.error.message).toBe(UNAUTHORISED_ERROR);
+        Expect(this.error.message).toBe(UNAUTHORIZED_ERROR);
     }
 
-    @Test("should not allow route without authorise")
+    @Test("should not allow route without authorize")
     public shouldNotAllowRouteWithoutAuthorise() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
@@ -124,12 +124,12 @@ export class AuthMiddlewareTests {
         };
 
         this.invoke(action);
-        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorisedAction);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorizedAction);
         Expect(this.next).not.toHaveBeenCalled();
-        Expect(this.error.message).toBe(UNAUTHORISED_ERROR);
+        Expect(this.error.message).toBe(UNAUTHORIZED_ERROR);
     }
 
-    @Test("should allow route with no authorise if set on parent")
+    @Test("should allow route with no authorize if set on parent")
     public shouldAllowRouteWithoutAuthoriseIfOnParent() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
@@ -138,7 +138,7 @@ export class AuthMiddlewareTests {
             payload: {
                 result: {
                     parent: {
-                        authorise: ["ADMIN"]
+                        authorize: ["ADMIN"]
                     }
                 }
             }
@@ -150,7 +150,7 @@ export class AuthMiddlewareTests {
         Expect(this.error).toBeNull();
     }
 
-    @Test("should not allow route with authorise on that do not match even if parent does")
+    @Test("should not allow route with authorize on that do not match even if parent does")
     public shouldNotAllowRouteIfAuthoriseDontMatchButParentDoes() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
@@ -158,18 +158,18 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: ["SUPER_ADMIN"],
+                    authorize: ["SUPER_ADMIN"],
                     parent: {
-                        authorise: ["ADMIN"]
+                        authorize: ["ADMIN"]
                     }
                 }
             }
         };
 
         this.invoke(action);
-        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorisedAction);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorizedAction);
         Expect(this.next).not.toHaveBeenCalled();
-        Expect(this.error.message).toBe(UNAUTHORISED_ERROR);
+        Expect(this.error.message).toBe(UNAUTHORIZED_ERROR);
     }
 
     @Test("should not allow unauthenticated users")
@@ -180,7 +180,7 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: ["SUPER_ADMIN"],
+                    authorize: ["SUPER_ADMIN"],
                 }
             }
         };
@@ -191,7 +191,7 @@ export class AuthMiddlewareTests {
         Expect(this.error.message).toBe(UNAUTHENTICATED_ERROR);
     }
 
-    @Test("should not allow unauthenticated users with authorise undefined")
+    @Test("should not allow unauthenticated users with authorize undefined")
     public shouldNotAllowUnauthenticatedUsersWithoutAuthorise() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: false, roles: ["SOMETHING"] }});
 
@@ -209,7 +209,7 @@ export class AuthMiddlewareTests {
         Expect(this.error.message).toBe(UNAUTHENTICATED_ERROR);
     }
 
-    @Test("should allow unauthenticated users with authorise false")
+    @Test("should allow unauthenticated users with authorize false")
     public shouldAllowUnauthenticatedUsersWithAuthoriseFalse() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: false, roles: [] }});
 
@@ -217,7 +217,7 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: false
+                    authorize: false
                 }
             }
         };
@@ -228,7 +228,7 @@ export class AuthMiddlewareTests {
         Expect(this.error).toBeNull();
     }
 
-    @Test("should allow authenticated users for any role for authorise true")
+    @Test("should allow authenticated users for any role for authorize true")
     public shouldAllowAuthenticatedUsersWithAnyRoleForAuthoriseTrue() {
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["SOMETHING"] }});
 
@@ -236,7 +236,7 @@ export class AuthMiddlewareTests {
             type: "LOCATION_CHANGED",
             payload: {
                 result: {
-                    authorise: true
+                    authorize: true
                 }
             }
         };
