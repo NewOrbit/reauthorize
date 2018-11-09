@@ -10,6 +10,8 @@ export type AuthPayload = {
     parent?: AuthPayload
 };
 
+export type ShouldHandleError = (error: any) => boolean;
+
 export interface AuthMiddlewareOptions<TState, TAction> {
     actionType: string;
     getUser: (state: TState) => User;
@@ -18,6 +20,8 @@ export interface AuthMiddlewareOptions<TState, TAction> {
     unauthenticatedAction?: any;
     unauthorizedError?: string;
     unauthenticatedError?: string;
+    handleUnauthenticatedApiErrors?: boolean | ShouldHandleError;
+    handleUnauthorizedApiErrors?: boolean | ShouldHandleError;
 }
 
 export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddlewareOptions<TState, TAction>): Middleware => {
@@ -28,10 +32,30 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
         getUser,
         unauthenticatedAction,
         unauthorizedAction,
+        handleUnauthenticatedApiErrors,
+        handleUnauthorizedApiErrors
     } = options;
 
     const unauthorizedError = options.unauthorizedError || UNAUTHORIZED_ERROR;
     const unauthenticatedError = options.unauthenticatedError || UNAUTHENTICATED_ERROR;
+
+    const isUnauthenticatedError = typeof handleUnauthenticatedApiErrors === "function"
+        ? handleUnauthenticatedApiErrors
+        : handleUnauthenticatedApiErrors && ((error: any) => error.response.status === 401);
+
+    const isUnauthorizedError = typeof handleUnauthorizedApiErrors === "function"
+        ? handleUnauthorizedApiErrors
+        : handleUnauthorizedApiErrors && ((error: any) => error.response.status === 403);
+
+    const handleUnauthenticated = (api: MiddlewareAPI<any>) => {
+        api.dispatch(unauthenticatedAction || unauthorizedAction);
+        throw new Error(unauthenticatedError);
+    };
+
+    const handleUnauthorized = (api: MiddlewareAPI<any>) => {
+        api.dispatch(unauthorizedAction);
+        throw new Error(unauthorizedError);
+    };
 
     return (api: MiddlewareAPI<any>) => (next: Dispatch<TState>) => (action: any) => {
 
@@ -51,16 +75,26 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
             const authResult = isAuthorized(user, authorize);
 
             if (authResult === "Unauthenticated") {
-                api.dispatch(unauthenticatedAction || unauthorizedAction);
-                throw new Error(unauthenticatedError);
+                handleUnauthenticated(api);
             }
 
             if (authResult === "Unauthorized") {
-                api.dispatch(unauthorizedAction);
-                throw new Error(unauthorizedError);
+                handleUnauthorized(api);
             }
         }
 
-        return next(action);
+        try {
+            return next(action);
+        } catch (e) {
+            if (isUnauthenticatedError && isUnauthenticatedError(e)) {
+                handleUnauthenticated(api);
+            }
+
+            if (isUnauthorizedError && isUnauthorizedError(e)) {
+                handleUnauthorized(api);
+            }
+
+            throw e;
+        }
     };
 };

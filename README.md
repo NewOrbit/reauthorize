@@ -33,13 +33,15 @@ Its configured with the following options:
 
 ```ts
 export interface AuthMiddlewareOptions<TState, TAction> {
-    actionType: string;                                      // name of action to monitor
-    getUser: (state: TState) => User;                        // method to get the current user from the state
-    getAuthPayload: (action: TAction) => AuthPayload;        // method to get the payload from the action
-    unauthorizedAction: any;                                 // action to dispatch if unauthorized
-    unauthenticatedAction?: any;                             // action to dispatch if unauthenticated (unauthorized will be used if not provided)
-    unauthorizedError?: string;                              // error message to throw when unauthorized
-    unauthenticatedError?: string;                           // error message to throw when authenticated
+    actionType: string;                                           // name of action to monitor
+    getUser: (state: TState) => User;                             // method to get the current user from the state
+    getAuthPayload: (action: TAction) => AuthPayload;             // method to get the payload from the action
+    unauthorizedAction: any;                                      // action to dispatch if unauthorized
+    unauthenticatedAction?: any;                                  // action to dispatch if unauthenticated (unauthorized will be used if undefined)
+    unauthorizedError?: string;                                   // error message to throw when unauthorized
+    unauthenticatedError?: string;                                // error message to throw when authenticated
+    handleUnauthenticatedApiErrors?: boolean | ShouldHandleError; // handle unauthenticated errors from api requests (see below)
+    handleUnauthorizedApiErrors?: boolean | ShouldHandleError;    // handle unauthorized errors from api requests (see below)
 }
 ```
 
@@ -75,6 +77,16 @@ const routes = {
   }
 };
 ```
+
+### Handle unauthenticated/unauthorized API responses
+
+If enabled and the next middleware in the chain calls an API and throws an error then the appropriate actions will be dispatched.
+
+If `handleUnauthenticatedApiErrors` is true then the reauthorize middleware will look for `error.response.status === 401` and dispatch the `unauthenticatedAction` and throw the `unauthenticatedError`.
+
+If `unauthorizedAction` is true then the reauthorize middleware will look for `error.response.status === 401` and dispatch the `unauthenticatedAction` and throw the `unauthorizedError`.
+
+Alternatively you can provide a `ShouldHandleError` function for either which takes the form `(error: any) => boolean` to determine whether we want to treat the error as unauthenticated/unauthorized.
 
 ## `Authorize` component
 
