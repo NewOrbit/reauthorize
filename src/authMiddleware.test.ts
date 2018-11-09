@@ -1,6 +1,13 @@
 import { Expect, Test, TestCase, TestFixture, SpyOn, Setup, createFunctionSpy } from "alsatian";
-import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORIZED_ERROR, AuthPayload } from "./authMiddleware";
+import { configureAuthMiddleware, UNAUTHENTICATED_ERROR, UNAUTHORIZED_ERROR, AuthPayload, AuthMiddlewareOptions } from "./authMiddleware";
 import { AuthState } from "./model";
+import { ISpiedFunction } from "alsatian/core/spying/spied-function.i";
+
+interface TestAction {
+    payload: {
+        result: AuthPayload
+    };
+}
 
 @TestFixture("authMiddleware")
 export class AuthMiddlewareTests {
@@ -10,15 +17,14 @@ export class AuthMiddlewareTests {
         getState: () => any;
     };
 
-    private next: () => any;
+    private next: ISpiedFunction<any, any>;
     private invoke: (action: any) => any;
     private error: Error;
 
     private unauthorizedAction = { type: "LOCATION_CHANGED", path: "/forbidden" };
     private unauthenticatedAction = { type: "LOCATION_CHANGED", path: "/login" };
 
-    @Setup
-    public setup() {
+    public setup(options: Partial<AuthMiddlewareOptions<AuthState, TestAction>> = {}) {
         this.store = {
             dispatch: () => ({}),
             getState: () => ({})
@@ -26,13 +32,15 @@ export class AuthMiddlewareTests {
 
         SpyOn(this.store, "dispatch");
 
-        const authMiddleware = configureAuthMiddleware<AuthState, { payload: { result: AuthPayload } }>({
+        const defaultOptions = {
             actionType: "LOCATION_CHANGED",
             getAuthPayload: action => action.payload.result,
             getUser: state => state.currentUser,
             unauthorizedAction: this.unauthorizedAction,
             unauthenticatedAction: this.unauthenticatedAction
-        });
+        };
+
+        const authMiddleware = configureAuthMiddleware<AuthState, TestAction>({ ...defaultOptions, ...options });
 
         this.next = createFunctionSpy();
         this.invoke = (action: any) => {
@@ -49,6 +57,7 @@ export class AuthMiddlewareTests {
     @TestCase({ type: "SOME_ACTION" })
     @TestCase({ type: "SOME_OTHER_ACTION" })
     public shouldPassThroughActionsItCannotHandle(action: any) {
+        this.setup();
         this.invoke(action);
         Expect(this.store.dispatch).not.toHaveBeenCalled();
         Expect(this.next).toHaveBeenCalledWith(action);
@@ -56,6 +65,7 @@ export class AuthMiddlewareTests {
 
     @Test("should allow authorized route")
     public shouldAllowAuthorisedRoute() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -75,6 +85,7 @@ export class AuthMiddlewareTests {
 
     @Test("should allow authorized route for string")
     public shouldAllowAuthorisedRouteForString() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -94,6 +105,7 @@ export class AuthMiddlewareTests {
 
     @Test("should not allow unauthorized route")
     public shouldNotAllowUnauthorizedRoute() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -113,6 +125,7 @@ export class AuthMiddlewareTests {
 
     @Test("should not allow route without authorize")
     public shouldNotAllowRouteWithoutAuthorise() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -131,6 +144,7 @@ export class AuthMiddlewareTests {
 
     @Test("should allow route with no authorize if set on parent")
     public shouldAllowRouteWithoutAuthoriseIfOnParent() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -152,6 +166,7 @@ export class AuthMiddlewareTests {
 
     @Test("should not allow route with authorize on that do not match even if parent does")
     public shouldNotAllowRouteIfAuthoriseDontMatchButParentDoes() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
 
         const action = {
@@ -174,6 +189,7 @@ export class AuthMiddlewareTests {
 
     @Test("should not allow unauthenticated users")
     public shouldNotAllowUnauthenticatedUsers() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: false, roles: [] }});
 
         const action = {
@@ -193,6 +209,7 @@ export class AuthMiddlewareTests {
 
     @Test("should not allow unauthenticated users with authorize undefined")
     public shouldNotAllowUnauthenticatedUsersWithoutAuthorise() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: false, roles: ["SOMETHING"] }});
 
         const action = {
@@ -211,6 +228,7 @@ export class AuthMiddlewareTests {
 
     @Test("should allow unauthenticated users with authorize false")
     public shouldAllowUnauthenticatedUsersWithAuthoriseFalse() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: false, roles: [] }});
 
         const action = {
@@ -230,6 +248,7 @@ export class AuthMiddlewareTests {
 
     @Test("should allow authenticated users for any role for authorize true")
     public shouldAllowAuthenticatedUsersWithAnyRoleForAuthoriseTrue() {
+        this.setup();
         SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["SOMETHING"] }});
 
         const action = {
@@ -245,5 +264,181 @@ export class AuthMiddlewareTests {
         Expect(this.store.dispatch).not.toHaveBeenCalled();
         Expect(this.next).toHaveBeenCalledWith(action);
         Expect(this.error).toBeNull();
+    }
+
+    @Test("should dispatch unauthenticated action if api responds with a 401 and configured")
+    public shouldDispatchUnauthenticatedFor401() {
+        this.setup({
+            handleUnauthenticatedApiErrors: true
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "Request failed with status code 401",
+                response: {
+                    status: 401,
+                    statusText: "Unauthorized"
+                }
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe(UNAUTHENTICATED_ERROR);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthenticatedAction);
+    }
+
+    @Test("should dispatch unauthenticated action if error matches configured function")
+    public shouldDispatchUnauthenticatedForCustomError() {
+        this.setup({
+            handleUnauthenticatedApiErrors: error => error.message === "bad error"
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "bad error"
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe(UNAUTHENTICATED_ERROR);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthenticatedAction);
+    }
+
+    @Test("should not dispatch unauthenticated action if error matches configured function")
+    public shouldNotDispatchUnauthenticatedForCustomError() {
+        this.setup({
+            handleUnauthenticatedApiErrors: error => error.message === "bad error"
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "another error"
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe("another error");
+        Expect(this.store.dispatch).not.toHaveBeenCalled();
+    }
+
+    @Test("should dispatch unauthorized action if api responds with a 403 and configured")
+    public shouldDispatchUnauthorizedFor403() {
+        this.setup({
+            handleUnauthorizedApiErrors: true
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "Request failed with status code 401",
+                response: {
+                    status: 403,
+                    statusText: "Unauthorized"
+                }
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe(UNAUTHORIZED_ERROR);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorizedAction);
+    }
+
+    @Test("should dispatch unauthorized action if error matches configured function")
+    public shouldDispatchUnauthorizedForCustomError() {
+        this.setup({
+            handleUnauthorizedApiErrors: error => error.message === "bad error"
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "bad error"
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe(UNAUTHORIZED_ERROR);
+        Expect(this.store.dispatch).toHaveBeenCalledWith(this.unauthorizedAction);
+    }
+
+    @Test("should not dispatch unauthorized action if error matches configured function")
+    public shouldNotDispatchUnauthorizedForCustomError() {
+        this.setup({
+            handleUnauthorizedApiErrors: error => error.message === "bad error"
+        });
+        SpyOn(this.store, "getState").andReturn({ currentUser: { authenticated: true, roles: ["ADMIN"] }});
+
+        const action = {
+            type: "LOCATION_CHANGED",
+            payload: {
+                result: {
+                    authorize: ["ADMIN"]
+                }
+            }
+        };
+
+        this.next.andCall(() => {
+            throw {
+                message: "another error"
+            };
+        });
+
+        this.invoke(action);
+        Expect(this.next).toHaveBeenCalledWith(action);
+        Expect(this.error.message).toBe("another error");
+        Expect(this.store.dispatch).not.toHaveBeenCalled();
     }
 }
