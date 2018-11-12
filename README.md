@@ -88,6 +88,8 @@ If `unauthorizedAction` is true then the reauthorize middleware will look for `e
 
 Alternatively you can provide a `ShouldHandleError` function for either which takes the form `(error: any) => boolean` to determine whether we want to treat the error as unauthenticated/unauthorized.
 
+> Note if you are using this to redirect to another route, and you are also using middleware to dispatch actions based on your current route you will want to make sure that you don't dispatch those actions if you aren't authenticated
+
 ## `Authorize` component
 
 This is a component you can use to hide parts of a component based on authorization.
