@@ -33,24 +33,24 @@
   },
   "homepage": "https://github.com/NewOrbit/reauthorize#readme",
   "peerDependencies": {
-    "react": "^16.2.0",
-    "redux": "^3.7.2",
-    "react-redux": "^5.0.6"
+    "react": "16.x",
+    "redux": "4.x",
+    "react-redux": "5.x"
   },
   "devDependencies": {
     "@types/enzyme": "^3.1.13",
     "@types/react": "16.0.35",
     "@types/react-redux": "5.0.14",
-    "neworbit-tslint-config": "^2.0.0",
     "alsatian": "^2.0.0",
     "enzyme": "^3.6.0",
     "enzyme-adapter-react-16": "^1.5.0",
-    "react-dom": "^16.5.0",
-    "tslint": "^5.0.0",
-    "tap-xunit": "^2.2.0",
-    "typescript": "^2.2.2",
+    "neworbit-tslint-config": "^2.0.0",
     "react": "^16.2.0",
-    "redux": "^3.7.2",
-    "react-redux": "^5.0.6"
+    "react-dom": "^16.5.0",
+    "react-redux": "^5.0.6",
+    "redux": "^4.0.1",
+    "tap-xunit": "^2.2.0",
+    "tslint": "^5.0.0",
+    "typescript": "^2.2.2"
   }
 }
