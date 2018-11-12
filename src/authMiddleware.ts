@@ -57,7 +57,7 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
         throw new Error(unauthorizedError);
     };
 
-    return (api: MiddlewareAPI<any>) => (next: Dispatch<TState>) => (action: any) => {
+    return (api: MiddlewareAPI<any>) => (next: Dispatch) => async (action: any) => {
 
         if (action.type === actionType) {
 
@@ -84,7 +84,7 @@ export const configureAuthMiddleware = <TState, TAction>(options: AuthMiddleware
         }
 
         try {
-            return next(action);
+            return await next(action);
         } catch (e) {
             if (isUnauthenticatedError && isUnauthenticatedError(e)) {
                 handleUnauthenticated(api);
